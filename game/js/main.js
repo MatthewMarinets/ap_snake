@@ -6,13 +6,13 @@ import { init_app_state, iterate_app_state } from "./app.js";
 
 const pressed_keys = {};
 
-document.addEventListener("keydown", (keyEvent) => {
-    pressed_keys[keyEvent.key] = true;
+document.addEventListener("keydown", (key_event) => {
+    pressed_keys[key_event.key] = true;
 });
-document.addEventListener("keyup", (keyEvent) => {
-    pressed_keys[keyEvent.key] = false;
+document.addEventListener("keyup", (key_event) => {
+    pressed_keys[key_event.key] = false;
 });
-document.addEventListener("blur", (focusEvent) => {
+document.addEventListener("blur", (focus_event) => {
     for (let key in pressed_keys) {
         pressed_keys[key] = false;
     }

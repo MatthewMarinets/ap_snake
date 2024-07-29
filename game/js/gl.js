@@ -128,13 +128,23 @@ export const gl_draw = (app_state) => {
     gl.useProgram(renderinfo.program);
     gl.uniform4f(renderinfo.locations.u_colour, 1.0, 0.5, 0.1, 1.0);
     // gl.uniformMatrix4fv(renderinfo.locations.u_view_matrix, true, identity4x4, 0, 0);
-    const transform = new Float32Array([
-        1, 0, 0, app_state.menu_state.cursor_pos[0],
-        0, 1, 0, app_state.menu_state.cursor_pos[1],
-        0, 0, 1, 0,
-        0, 0, 0, 1,
-    ]);
-    gl.uniformMatrix4fv(renderinfo.locations.u_view_matrix, true, transform, 0, 0);
+    if (app_state.state == "menu") {
+        const transform = new Float32Array([
+            1, 0, 0, app_state.menu_state.cursor_pos[0],
+            0, 1, 0, app_state.menu_state.cursor_pos[1],
+            0, 0, 1, 0,
+            0, 0, 0, 1,
+        ]);
+        gl.uniformMatrix4fv(renderinfo.locations.u_view_matrix, true, transform, 0, 0);
+    } else {
+        const transform = new Float32Array([
+            1, 0, 0, app_state.game_state.player_pos[0] / 30,
+            0, -1, 0, app_state.game_state.player_pos[1] / 30,
+            0, 0, 1, 0,
+            0, 0, 0, 1,
+        ]);
+        gl.uniformMatrix4fv(renderinfo.locations.u_view_matrix, true, transform, 0, 0);
+    }
 
     // actually draw
     gl.clearColor(0, 0, 0, 0);

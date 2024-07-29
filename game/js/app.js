@@ -9,10 +9,10 @@ import { init_game_state, iterate_game_state } from "./game.js";
  */
 export const init_app_state = () => {
     return {
-        state: "menu",
+        state: "game",
         time: 0.0,
-        menu_state: init_menu_state(),
-        game_state: init_game_state(),
+        menu_state: init_menu_state({}),
+        game_state: init_game_state({}),
     };
 };
 
@@ -24,8 +24,8 @@ export const init_app_state = () => {
  */
 export const iterate_app_state = (app_state, dt, inputs) => {
     if (app_state.state == "menu") {
-        iterate_menu_state(app_state.menu_state, dt, inputs);
+        iterate_menu_state(app_state, dt, inputs);
     } else {
-        iterate_game_state(app_state.game_state, dt, inputs);
+        iterate_game_state(app_state, dt, inputs);
     }
 };
