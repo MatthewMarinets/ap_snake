@@ -1,7 +1,7 @@
 "use strict";
 import { GAME_UPDATE_PERIOD_MS } from "./globals.js";
 import { gl_ready, gl_draw } from "./gl.js";
-import { init_app_state, iterate_app_state } from "./game.js";
+import { init_app_state, iterate_app_state } from "./app.js";
 
 
 const pressed_keys = {};
@@ -19,12 +19,12 @@ const app_state = init_app_state();
 const render_loop = (time) => {
     gl_draw(app_state);
     window.requestAnimationFrame(render_loop);
-}
+};
 
 const game_update_loop = (time) => {
     app_state.time += GAME_UPDATE_PERIOD_MS;
     iterate_app_state(app_state, GAME_UPDATE_PERIOD_MS, {...pressed_keys});
-}
+};
 
 export const main = () => {
     // game state update loop
@@ -38,6 +38,6 @@ export const main = () => {
     });
 
     // todo: sound loop
-}
+};
 
 main();

@@ -1,7 +1,7 @@
 "use strict";
 
-import { resources } from "./resource_loader.js"
-import { canvas, report_error } from "./globals.js"
+import { resources } from "./resource_loader.js";
+import { canvas, report_error } from "./globals.js";
 
 /** @type {WebGL2RenderingContext} */
 const gl = canvas.getContext("webgl2");
@@ -36,7 +36,7 @@ const create_shader = (gl, type, source) => {
     console.log(gl.getShaderInfoLog(shader));
     gl.deleteShader(shader);
     return null;
-}
+};
 
 const shaders_initialized = Promise.all(resources.load_all_text.concat(gl_initialized)).then((inputs) => {
     let program = gl.createProgram();
@@ -141,4 +141,4 @@ export const gl_draw = (app_state) => {
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.bindVertexArray(renderinfo.vao);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
-}
+};
