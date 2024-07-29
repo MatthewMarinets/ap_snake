@@ -12,6 +12,11 @@ document.addEventListener("keydown", (keyEvent) => {
 document.addEventListener("keyup", (keyEvent) => {
     pressed_keys[keyEvent.key] = false;
 });
+document.addEventListener("blur", (focusEvent) => {
+    for (let key in pressed_keys) {
+        pressed_keys[key] = false;
+    }
+})
 
 
 const app_state = init_app_state();
