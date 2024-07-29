@@ -1,5 +1,7 @@
 "use strict";
 
+export const GAME_UPDATE_PERIOD_MS = 12;
+
 export const canvas = document.getElementById("snake_canvas");
 export const error_log = document.getElementById("error_log");
 

@@ -6,4 +6,15 @@
  * @property {Promise<string>} load_fragment_shader - Fragment Shader Promise
  * @property {Promise<string>} vertex_shader - Vertex Shader loaded value
  * @property {Promise<string>} fragment_shader - Fragment Shader loaded value
+ * 
+ * @typedef {Object} AppState
+ * @property {"menu"|"game"} state
+ * @property {number} time
+ * @property {MenuState} menu_state
+ * @property {GameState} game_state
+ * 
+ * @typedef {Object} MenuState
+ * @property {number} cursor_position
+ * @property {[number, number]} cursor_pos
+ * @property {string[]} menu_options
  */

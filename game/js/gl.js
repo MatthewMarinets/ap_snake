@@ -62,12 +62,21 @@ const shaders_initialized = Promise.all(resources.load_all_text.concat(gl_initia
  * @typedef {Object} Locations
  * @property {number} a_position
  * @property {number} u_colour
+ * @property {number} u_view_matrix
+ * 
+ * @typedef {Object} RenderInfo
+ * @property {Locations} locations
+ * @property {WebGLVertexArrayObject} vao
+ * @property {WebGLProgram} program
  */
-/** @type {Locations} */
-const locations = {}
-const locations_initialized = shaders_initialized.then((program) => {
-    locations.a_position = gl.getAttribLocation(program, "a_position");
-    locations.u_colour = gl.getUniformLocation(program, "colour");
+
+/** @type {RenderInfo} */
+const renderinfo = {locations: {}}
+const renderinfo_initialized = shaders_initialized.then((program) => {
+    renderinfo.locations.a_position = gl.getAttribLocation(program, "a_position");
+    renderinfo.locations.u_colour = gl.getUniformLocation(program, "colour");
+    renderinfo.locations.u_view_matrix = gl.getUniformLocation(program, "view_matrix");
+    renderinfo.program = program;
 
     // buffer
     const position_buffer = gl.createBuffer();
@@ -84,9 +93,9 @@ const locations_initialized = shaders_initialized.then((program) => {
     gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
 
     // attributes
-    const vao = gl.createVertexArray();
-    gl.bindVertexArray(vao);
-    gl.enableVertexAttribArray(locations.a_position);
+    renderinfo.vao = gl.createVertexArray();
+    gl.bindVertexArray(renderinfo.vao);
+    gl.enableVertexAttribArray(renderinfo.locations.a_position);
 
     const size = 3;
     const type = gl.FLOAT;
@@ -94,21 +103,42 @@ const locations_initialized = shaders_initialized.then((program) => {
     const stride = 0;
     const offset = 0;
     // Note: This also binds the current ARRAY_BUFFER (ie `positions`) to the `a_position` location
-    gl.vertexAttribPointer(locations.a_position, size, type, normalize, stride, offset);
+    gl.vertexAttribPointer(renderinfo.locations.a_position, size, type, normalize, stride, offset);
 
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
+    return renderinfo;
+});
+
+export const gl_ready = renderinfo_initialized;
+
+const identity4x4 = new Float32Array([
+    1, 0, 0, 0,
+    0, 1, 0, 0,
+    0, 0, 1, 0,
+    0, 0, 0, 1,
+]);
+
+/**
+ * Draws the current state. Assumes renderinfo has been initialized
+ * @param {AppState} app_state 
+ */
+export const gl_draw = (app_state) => {
     // uniforms
-    gl.useProgram(program);
-    gl.uniform4f(locations.u_colour, 1.0, 0.5, 0.1, 1.0);
+    gl.useProgram(renderinfo.program);
+    gl.uniform4f(renderinfo.locations.u_colour, 1.0, 0.5, 0.1, 1.0);
+    // gl.uniformMatrix4fv(renderinfo.locations.u_view_matrix, true, identity4x4, 0, 0);
+    const transform = new Float32Array([
+        1, 0, 0, app_state.menu_state.cursor_pos[0],
+        0, 1, 0, app_state.menu_state.cursor_pos[1],
+        0, 0, 1, 0,
+        0, 0, 0, 1,
+    ]);
+    gl.uniformMatrix4fv(renderinfo.locations.u_view_matrix, true, transform, 0, 0);
 
     // actually draw
     gl.clearColor(0, 0, 0, 0);
     gl.clear(gl.COLOR_BUFFER_BIT);
-    gl.bindVertexArray(vao);
+    gl.bindVertexArray(renderinfo.vao);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
-
-    return locations;
-});
-
-export const gl_ready = locations_initialized;
+}
