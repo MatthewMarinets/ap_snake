@@ -9,5 +9,7 @@ export const error_log = document.getElementById("error_log");
  */
 export const report_error = (error_message) => {
     console.log(error_message);
-    error_log.textContent = error_log.textContent + "\n" + error_message;
+    const p = document.createElement("p")
+    p.textContent = error_message;
+    error_log.appendChild(p);
 }

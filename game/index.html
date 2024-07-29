@@ -8,6 +8,7 @@
     <style>
     * {
         min-width: 0;
+        margin: 0;
     }
     body {
         background-color: black;
@@ -24,11 +25,11 @@
 <body>
     <h1 style="text-align: center">Snake</h1>
     <div style="text-align: center">
-        <canvas id="snake_canvas" width="1080" height="720" style="border: 1px solid #fae">
+        <canvas id="snake_canvas" width="1920" height="1080" style="max-height: 85vh; max-width: 95vw; border: 1px solid #fae">
             HTML Canvas failed to load.
         </canvas>
-        <p id="error_log"></p>
     </div>
+    <div id="error_log" style="position: absolute; top: 10px; left: 10px"></p>
     <script type="module" src="js/main.js"></script>
 </body>
 </html>
