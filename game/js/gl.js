@@ -58,6 +58,52 @@ const shaders_initialized = Promise.all(resources.load_all_text.concat(gl_initia
     return new Promise.reject("Shader program initialization failed");
 });
 
+const cube_vertices = new Float32Array([
+    // front
+    -0.5, -0.5, -0.5,
+    +0.5, -0.5, -0.5,
+    -0.5, +0.5, -0.5,
+    +0.5, -0.5, -0.5,
+    +0.5, +0.5, -0.5,
+    -0.5, +0.5, -0.5,
+    // back
+    -0.5, -0.5, +0.5,
+    -0.5, +0.5, +0.5,
+    +0.5, -0.5, +0.5,
+    +0.5, -0.5, +0.5,
+    -0.5, +0.5, +0.5,
+    +0.5, +0.5, +0.5,
+    // left
+    -0.5, -0.5, -0.5,
+    -0.5, +0.5, -0.5,
+    -0.5, -0.5, +0.5,
+    -0.5, -0.5, +0.5,
+    -0.5, +0.5, -0.5,
+    -0.5, +0.5, +0.5,
+    // right
+    +0.5, -0.5, -0.5,
+    +0.5, -0.5, +0.5,
+    +0.5, +0.5, -0.5,
+    +0.5, -0.5, +0.5,
+    +0.5, +0.5, +0.5,
+    +0.5, +0.5, -0.5,
+    // top
+    -0.5, +0.5, -0.5,
+    +0.5, +0.5, -0.5,
+    -0.5, +0.5, +0.5,
+    -0.5, +0.5, +0.5,
+    +0.5, +0.5, -0.5,
+    +0.5, +0.5, +0.5,
+    // bottom
+    -0.5, -0.5, -0.5,
+    -0.5, -0.5, +0.5,
+    +0.5, -0.5, -0.5,
+    -0.5, -0.5, +0.5,
+    +0.5, -0.5, +0.5,
+    +0.5, -0.5, -0.5,
+]);
+const NUM_VERTICES = 36;
+
 /**
  * @typedef {Object} Locations
  * @property {number} a_position
@@ -85,12 +131,8 @@ const renderinfo_initialized = shaders_initialized.then((program) => {
         return Promise.reject("Error during location init");
     }
     gl.bindBuffer(gl.ARRAY_BUFFER, position_buffer);
-    const positions = new Float32Array([
-        0.0, 0.0, 0.0,
-        0.0, 1.0, 0.0,
-        0.5, 0.0, 0.0,
-    ]);
-    gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
+    gl.bufferData(gl.ARRAY_BUFFER, cube_vertices, gl.STATIC_DRAW);
+    gl.enable(gl.CULL_FACE);
 
     // attributes
     renderinfo.vao = gl.createVertexArray();
@@ -140,7 +182,7 @@ export const gl_draw = (app_state) => {
     } else {
         const transform = new Float32Array([
             ASPECT, 0, 0, app_state.game_state.player_pos[0] / 30 * ASPECT,
-            0, -1, 0, app_state.game_state.player_pos[1] / 30,
+            0, 1, 0, app_state.game_state.player_pos[1] / 30,
             0, 0, 1, 0,
             0, 0, 0, 1,
         ]);
@@ -151,5 +193,5 @@ export const gl_draw = (app_state) => {
     gl.clearColor(0, 0, 0, 0);
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.bindVertexArray(renderinfo.vao);
-    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    gl.drawArrays(gl.TRIANGLES, 0, NUM_VERTICES);
 };
