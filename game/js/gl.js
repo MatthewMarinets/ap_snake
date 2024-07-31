@@ -110,7 +110,7 @@ const MAX_POSITION_BUFFER_SIZE_BYTES = 1536;
  * @typedef {Object} Locations
  * @property {number} a_position
  * @property {number} a_object_position
- * @property {number} u_colour
+ * @property {number} a_colour
  * @property {number} u_view_matrix
  * 
  * @typedef {Object} RenderInfo
@@ -118,6 +118,7 @@ const MAX_POSITION_BUFFER_SIZE_BYTES = 1536;
  * @property {WebGLVertexArrayObject} vao
  * @property {WebGLProgram} program
  * @property {WebGLBuffer} position_buffer
+ * @property {WebGLBuffer} colour_buffer
  */
 
 /** @type {RenderInfo} */
@@ -125,7 +126,7 @@ const renderinfo = {locations: {}}
 const renderinfo_initialized = shaders_initialized.then((program) => {
     renderinfo.locations.a_position = gl.getAttribLocation(program, "a_vertex_position");
     renderinfo.locations.a_object_position = gl.getAttribLocation(program, "a_object_position");
-    renderinfo.locations.u_colour = gl.getUniformLocation(program, "colour");
+    renderinfo.locations.a_colour = gl.getAttribLocation(program, "a_colour");
     renderinfo.locations.u_view_matrix = gl.getUniformLocation(program, "view_matrix");
     renderinfo.program = program;
 
@@ -166,6 +167,21 @@ const renderinfo_initialized = shaders_initialized.then((program) => {
     );
     gl.vertexAttribDivisor(renderinfo.locations.a_object_position, 1);
 
+    // colour buffer
+    renderinfo.colour_buffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, renderinfo.colour_buffer);
+    gl.bufferData(gl.ARRAY_BUFFER, MAX_POSITION_BUFFER_SIZE_BYTES, gl.DYNAMIC_DRAW);
+    gl.enableVertexAttribArray(renderinfo.locations.a_colour)
+    gl.vertexAttribPointer(
+        renderinfo.locations.a_colour,
+        3,
+        gl.FLOAT,
+        false,
+        3*4,
+        0,
+    );
+    gl.vertexAttribDivisor(renderinfo.locations.a_colour, 1);
+
     // options
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
     gl.enable(gl.CULL_FACE);
@@ -190,14 +206,22 @@ const identity4x4 = new Float32Array([
 export const gl_draw = (app_state) => {
     // uniforms
     gl.useProgram(renderinfo.program);
-    gl.uniform4f(renderinfo.locations.u_colour, 1.0, 0.5, 0.1, 1.0);
     // gl.uniformMatrix4fv(renderinfo.locations.u_view_matrix, true, identity4x4, 0, 0);
 
     const positions = new Float32Array([
         0, 0, 0,
-        1, 1, 0,
         0.5, 0.5, 0,
+        1, 1, 0,
     ])
+    const colours = new Float32Array([
+        1, 0.5, 0.1,
+        13/16, 9/16, 0.97,
+        1, 0, 1,
+    ])
+    if (positions.length != colours.length) {
+        report_error("colour and position buffers must be the same size!");
+        return;
+    }
     const num_instances = positions.length / 3;
 
     if (app_state.state == "menu") {
@@ -208,9 +232,6 @@ export const gl_draw = (app_state) => {
             0, 0, 0, 1,
         ]);
         gl.uniformMatrix4fv(renderinfo.locations.u_view_matrix, true, transform, 0, 0);
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, renderinfo.position_buffer);
-        gl.bufferSubData(gl.ARRAY_BUFFER, 0, positions);
     } else {
         // game
         const transform = new Float32Array([
@@ -220,10 +241,13 @@ export const gl_draw = (app_state) => {
             0, 0, 0, 1,
         ]);
         gl.uniformMatrix4fv(renderinfo.locations.u_view_matrix, true, transform, 0, 0);
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, renderinfo.position_buffer);
-        gl.bufferSubData(gl.ARRAY_BUFFER, 0, positions);
     }
+
+    // buffer the colour / cube position data
+    gl.bindBuffer(gl.ARRAY_BUFFER, renderinfo.position_buffer);
+    gl.bufferSubData(gl.ARRAY_BUFFER, 0, positions);
+    gl.bindBuffer(gl.ARRAY_BUFFER, renderinfo.colour_buffer);
+    gl.bufferSubData(gl.ARRAY_BUFFER, 0, colours);
 
     // actually draw
     gl.clearColor(0, 0, 0, 0);
