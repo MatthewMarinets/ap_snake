@@ -102,11 +102,14 @@ const cube_vertices = new Float32Array([
     +0.5, -0.5, +0.5,
     +0.5, -0.5, -0.5,
 ]);
-const NUM_VERTICES = 36;
+const NUM_VERTICES = cube_vertices.length / 3;
+
+const MAX_POSITION_BUFFER_SIZE_BYTES = 1536;
 
 /**
  * @typedef {Object} Locations
  * @property {number} a_position
+ * @property {number} a_object_position
  * @property {number} u_colour
  * @property {number} u_view_matrix
  * 
@@ -114,25 +117,26 @@ const NUM_VERTICES = 36;
  * @property {Locations} locations
  * @property {WebGLVertexArrayObject} vao
  * @property {WebGLProgram} program
+ * @property {WebGLBuffer} position_buffer
  */
 
 /** @type {RenderInfo} */
 const renderinfo = {locations: {}}
 const renderinfo_initialized = shaders_initialized.then((program) => {
-    renderinfo.locations.a_position = gl.getAttribLocation(program, "a_position");
+    renderinfo.locations.a_position = gl.getAttribLocation(program, "a_vertex_position");
+    renderinfo.locations.a_object_position = gl.getAttribLocation(program, "a_object_position");
     renderinfo.locations.u_colour = gl.getUniformLocation(program, "colour");
     renderinfo.locations.u_view_matrix = gl.getUniformLocation(program, "view_matrix");
     renderinfo.program = program;
 
     // buffer
-    const position_buffer = gl.createBuffer();
-    if (position_buffer == null) {
+    const vertex_position_buffer = gl.createBuffer();
+    if (vertex_position_buffer == null) {
         report_error("");
         return Promise.reject("Error during location init");
     }
-    gl.bindBuffer(gl.ARRAY_BUFFER, position_buffer);
+    gl.bindBuffer(gl.ARRAY_BUFFER, vertex_position_buffer);
     gl.bufferData(gl.ARRAY_BUFFER, cube_vertices, gl.STATIC_DRAW);
-    gl.enable(gl.CULL_FACE);
 
     // attributes
     renderinfo.vao = gl.createVertexArray();
@@ -147,7 +151,24 @@ const renderinfo_initialized = shaders_initialized.then((program) => {
     // Note: This also binds the current ARRAY_BUFFER (ie `positions`) to the `a_position` location
     gl.vertexAttribPointer(renderinfo.locations.a_position, size, type, normalize, stride, offset);
 
+    // position buffer
+    renderinfo.position_buffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, renderinfo.position_buffer);
+    gl.bufferData(gl.ARRAY_BUFFER, MAX_POSITION_BUFFER_SIZE_BYTES, gl.DYNAMIC_DRAW);
+    gl.enableVertexAttribArray(renderinfo.locations.a_object_position)
+    gl.vertexAttribPointer(
+        renderinfo.locations.a_object_position,
+        3,
+        gl.FLOAT,
+        false,
+        3*4,
+        0,
+    );
+    gl.vertexAttribDivisor(renderinfo.locations.a_object_position, 1);
+
+    // options
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+    gl.enable(gl.CULL_FACE);
 
     return renderinfo;
 });
@@ -163,7 +184,7 @@ const identity4x4 = new Float32Array([
 ]);
 
 /**
- * Draws the current state. Assumes renderinfo has been initialized
+ * Draws the current state. Assumes renderinfo has been initialized.
  * @param {AppState} app_state 
  */
 export const gl_draw = (app_state) => {
@@ -171,6 +192,14 @@ export const gl_draw = (app_state) => {
     gl.useProgram(renderinfo.program);
     gl.uniform4f(renderinfo.locations.u_colour, 1.0, 0.5, 0.1, 1.0);
     // gl.uniformMatrix4fv(renderinfo.locations.u_view_matrix, true, identity4x4, 0, 0);
+
+    const positions = new Float32Array([
+        0, 0, 0,
+        1, 1, 0,
+        0.5, 0.5, 0,
+    ])
+    const num_instances = positions.length / 3;
+
     if (app_state.state == "menu") {
         const transform = new Float32Array([
             ASPECT, 0, 0, app_state.menu_state.cursor_pos[0] * ASPECT,
@@ -179,7 +208,11 @@ export const gl_draw = (app_state) => {
             0, 0, 0, 1,
         ]);
         gl.uniformMatrix4fv(renderinfo.locations.u_view_matrix, true, transform, 0, 0);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, renderinfo.position_buffer);
+        gl.bufferSubData(gl.ARRAY_BUFFER, 0, positions);
     } else {
+        // game
         const transform = new Float32Array([
             ASPECT, 0, 0, app_state.game_state.player_pos[0] / 30 * ASPECT,
             0, 1, 0, app_state.game_state.player_pos[1] / 30,
@@ -187,11 +220,15 @@ export const gl_draw = (app_state) => {
             0, 0, 0, 1,
         ]);
         gl.uniformMatrix4fv(renderinfo.locations.u_view_matrix, true, transform, 0, 0);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, renderinfo.position_buffer);
+        gl.bufferSubData(gl.ARRAY_BUFFER, 0, positions);
     }
 
     // actually draw
     gl.clearColor(0, 0, 0, 0);
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.bindVertexArray(renderinfo.vao);
-    gl.drawArrays(gl.TRIANGLES, 0, NUM_VERTICES);
+    // gl.drawArrays(gl.TRIANGLES, 0, NUM_VERTICES);
+    gl.drawArraysInstanced(gl.TRIANGLES, 0, NUM_VERTICES, num_instances);
 };
