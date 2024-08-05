@@ -110,6 +110,7 @@ const MAX_POSITION_BUFFER_SIZE_BYTES = 1536;
  * @typedef {Object} Locations
  * @property {number} a_position
  * @property {number} a_object_position
+ * @property {number} a_object_scale
  * @property {number} a_colour
  * @property {number} u_view_matrix
  * 
@@ -118,6 +119,7 @@ const MAX_POSITION_BUFFER_SIZE_BYTES = 1536;
  * @property {WebGLVertexArrayObject} vao
  * @property {WebGLProgram} program
  * @property {WebGLBuffer} position_buffer
+ * @property {WebGLBuffer} scale_buffer
  * @property {WebGLBuffer} colour_buffer
  */
 
@@ -126,6 +128,7 @@ const renderinfo = {locations: {}}
 const renderinfo_initialized = shaders_initialized.then((program) => {
     renderinfo.locations.a_position = gl.getAttribLocation(program, "a_vertex_position");
     renderinfo.locations.a_object_position = gl.getAttribLocation(program, "a_object_position");
+    renderinfo.locations.a_object_scale = gl.getAttribLocation(program, "a_object_scale");
     renderinfo.locations.a_colour = gl.getAttribLocation(program, "a_colour");
     renderinfo.locations.u_view_matrix = gl.getUniformLocation(program, "view_matrix");
     renderinfo.program = program;
@@ -166,6 +169,21 @@ const renderinfo_initialized = shaders_initialized.then((program) => {
         0,
     );
     gl.vertexAttribDivisor(renderinfo.locations.a_object_position, 1);
+    
+    // scale buffer
+    renderinfo.scale_buffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, renderinfo.scale_buffer);
+    gl.bufferData(gl.ARRAY_BUFFER, MAX_POSITION_BUFFER_SIZE_BYTES, gl.DYNAMIC_DRAW);
+    gl.enableVertexAttribArray(renderinfo.locations.a_object_scale)
+    gl.vertexAttribPointer(
+        renderinfo.locations.a_object_scale,
+        3,
+        gl.FLOAT,
+        false,
+        3*4,
+        0,
+    );
+    gl.vertexAttribDivisor(renderinfo.locations.a_object_scale, 1);
 
     // colour buffer
     renderinfo.colour_buffer = gl.createBuffer();
@@ -218,8 +236,17 @@ export const gl_draw = (app_state) => {
         13/16, 9/16, 0.97,
         1, 0, 1,
     ])
+    const scales = new Float32Array([
+        1, 1, 1,
+        0.75, 0.75, 0.75,
+        0.5, 0.5, 0.5,
+    ])
     if (positions.length != colours.length) {
         report_error("colour and position buffers must be the same size!");
+        return;
+    }
+    if (positions.length != scales.length) {
+        report_error("scale and position buffers must be the same size!");
         return;
     }
     const num_instances = positions.length / 3;
@@ -246,6 +273,8 @@ export const gl_draw = (app_state) => {
     // buffer the colour / cube position data
     gl.bindBuffer(gl.ARRAY_BUFFER, renderinfo.position_buffer);
     gl.bufferSubData(gl.ARRAY_BUFFER, 0, positions);
+    gl.bindBuffer(gl.ARRAY_BUFFER, renderinfo.scale_buffer);
+    gl.bufferSubData(gl.ARRAY_BUFFER, 0, scales);
     gl.bindBuffer(gl.ARRAY_BUFFER, renderinfo.colour_buffer);
     gl.bufferSubData(gl.ARRAY_BUFFER, 0, colours);
 
