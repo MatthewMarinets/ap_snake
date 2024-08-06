@@ -2,10 +2,16 @@
 
 import { init_menu_state } from "./menu.js";
 
-const UP = [0, 1];
-const DOWN = [0, -1];
-const RIGHT = [1, 0];
-const LEFT = [-1, 0];
+const UP = 0;
+const DOWN = 1;
+const RIGHT = 2;
+const LEFT = 3;
+const directions = [
+    new Float32Array([0, 1]),  // UP
+    new Float32Array([0, -1]),  // DOWN
+    new Float32Array([1, 0]),  // RIGHT
+    new Float32Array([-1, 0]),  // LEFT
+];
 
 /**
  * @typedef {Float32Array} Camera
@@ -42,6 +48,8 @@ const LEVEL_ONE_WALL_COLOUR = [13/6, 9/16, 0.97];
  * @property {number[]} wall_colour
  * @property {number[][]} player_pos
  * @property {Camera} camera
+ * @property {0|1|2|3} player_direction
+ * @property {0|1|2|3} last_player_direction
  * @property {number} player_last_moved
  * @property {number} level_time_ms
  */
@@ -59,7 +67,8 @@ export const init_game_state = (game_state) => {
 
     game_state.player_pos = [[16, 0, 0], [16, 0, 0], [16, 0, 0]];
     game_state.player_colour = [1, 0.5, 0.1];
-    game_state.player_velocity = UP;
+    game_state.player_direction = UP;
+    game_state.player_last_direction = UP;
     game_state.player_move_period_ms = 100;
     game_state.player_last_moved = 0;
     game_state.level_time_ms = 0;
@@ -78,20 +87,36 @@ export const init_game_state = (game_state) => {
 export const iterate_game_state = (app_state, dt, inputs) => {
     let game_state = app_state.game_state;
     game_state.level_time_ms += dt;
-    if (inputs.w && !game_state.last_update_inputs.w) {
-        game_state.player_velocity = UP;
+
+    // apply inputs
+    if (game_state.last_player_direction != DOWN
+        && (inputs.w && !game_state.last_update_inputs.w
+            || inputs.ArrowUp && !game_state.last_update_inputs.ArrowUp)
+    ) {
+        game_state.player_direction = UP;
     }
-    if (inputs.s && !game_state.last_update_inputs.s) {
-        game_state.player_velocity = DOWN;
+    if (game_state.last_player_direction != UP
+        && (inputs.s && !game_state.last_update_inputs.s
+            || inputs.ArrowDown && !game_state.last_update_inputs.ArrowDown)
+    ) {
+        game_state.player_direction = DOWN;
     }
-    if (inputs.a && !game_state.last_update_inputs.a) {
-        game_state.player_velocity = LEFT;
+    if (game_state.last_player_direction != RIGHT
+        && (inputs.a && !game_state.last_update_inputs.a
+            || inputs.ArrowLeft && !game_state.last_update_inputs.ArrowLeft)
+    ) {
+        game_state.player_direction = LEFT;
     }
-    if (inputs.d && !game_state.last_update_inputs.d) {
-        game_state.player_velocity = RIGHT;
+    if (game_state.last_player_direction != LEFT
+        && (inputs.d && !game_state.last_update_inputs.d
+            || inputs.ArrowRight && !game_state.last_update_inputs.ArrowRight)
+    ) {
+        game_state.player_direction = RIGHT;
     }
     game_state.last_update_inputs = inputs;
+
     if (game_state.level_time_ms > game_state.player_last_moved + game_state.player_move_period_ms) {
+        game_state.last_player_direction = game_state.player_direction;
         if (update_position(game_state)) {
             app_state.state = "menu";
             init_menu_state(app_state.menu_state);
@@ -107,8 +132,9 @@ export const iterate_game_state = (app_state, dt, inputs) => {
 const update_position = (game_state) => {
     let player_pos = game_state.player_pos;
     let new_pos = player_pos[0].slice();
-    new_pos[0] += game_state.player_velocity[0];
-    new_pos[1] += game_state.player_velocity[1];
+    const player_velocity = directions[game_state.player_direction]
+    new_pos[0] += player_velocity[0];
+    new_pos[1] += player_velocity[1];
     game_state.player_last_moved += game_state.player_move_period_ms;
 
     // out of bounds
