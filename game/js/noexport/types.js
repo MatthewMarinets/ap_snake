@@ -17,4 +17,18 @@
  * @property {number} cursor_position
  * @property {[number, number]} cursor_pos
  * @property {string[]} menu_options
+ * 
+ * @typedef {Object} GameState
+ * @property {number} width
+ * @property {number} height
+ * @property {number[][]} walls
+ * @property {number[]} wall_colour
+ * @property {number[][]} player_pos
+ * @property {Camera} camera
+ * @property {0|1|2|3} player_direction
+ * @property {0|1|2|3} player_last_direction
+ * @property {-1|0|1|2|3} player_buffered_direction
+ * @property {number} player_last_moved
+ * @property {number} level_time_ms
+ * 
  */
