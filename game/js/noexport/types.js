@@ -23,6 +23,7 @@
  * @property {number} height
  * @property {number[][]} walls
  * @property {number[]} wall_colour
+ * @property {number[]} apples
  * @property {number[][]} player_pos
  * @property {Camera} camera
  * @property {0|1|2|3} player_direction

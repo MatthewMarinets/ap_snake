@@ -1,7 +1,7 @@
 "use strict";
 
 import { resources } from "./resource_loader.js";
-import { canvas, report_error } from "./globals.js";
+import { canvas, report_error, decode_coord_x, decode_coord_y } from "./globals.js";
 
 /** @type {WebGL2RenderingContext} */
 const gl = canvas.getContext("webgl2");
@@ -274,9 +274,21 @@ export const gl_draw = (app_state) => {
         transform[3] *= ASPECT;
         gl.uniformMatrix4fv(renderinfo.locations.u_view_matrix, true, transform, 0, 0);
 
-        positions = new Float32Array(game_state.walls.map((x) => [x[0], x[1], 0]).flat(1).concat(game_state.player_pos.flat(1)));
-        scales = new Float32Array(game_state.walls.map((x) => [x[2], x[3], 1]).flat(1).concat(game_state.player_pos.map((x) => [1,1,1]).flat(1)));
-        colours = new Float32Array(game_state.walls.map((x) => game_state.wall_colour).flat(1).concat(game_state.player_pos.map((x) => game_state.player_colour).flat(1)));
+        positions = new Float32Array(
+            game_state.walls.map((x) => [x[0], x[1], 0]).flat(1)
+            .concat(game_state.player_pos.flat(1))
+            .concat(game_state.apples.map((x) => [decode_coord_x(x), decode_coord_y(x), 0 ]).flat(1))
+        );
+        scales = new Float32Array(
+            game_state.walls.map((x) => [x[2], x[3], 1]).flat(1)
+            .concat(game_state.player_pos.map((x) => [1,1,1]).flat(1))
+            .concat(game_state.apples.map((x) => [0.85,0.85,0.9]).flat(1))
+        );
+        colours = new Float32Array(
+            game_state.walls.map((x) => game_state.wall_colour).flat(1)
+            .concat(game_state.player_pos.map((x) => game_state.player_colour).flat(1))
+            .concat(game_state.apples.map((x) => [1, 0, 0]).flat(1))
+        );
         num_instances = positions.length / 3;
     }
 

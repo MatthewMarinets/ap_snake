@@ -1,6 +1,8 @@
 "use strict";
 
 import { init_menu_state } from "./menu.js";
+import { LEVELS } from "./levels.js";
+import { encode_coord } from "./globals.js";
 
 const UP = 0;
 const DOWN = 1;
@@ -33,15 +35,34 @@ const init_camera = () => {
     ]);
 }
 
-const LEVEL_ONE_WALLS = [
-    [16, 0, 33, 1],
-    [0, 16, 1, 33],
-    [16, 32, 33, 1],
-    [32, 16, 1, 33],
-    [8, 16, 1, 17],
-    [24, 16, 1, 17],
-];
-const LEVEL_ONE_WALL_COLOUR = [13/6, 9/16, 0.97];
+/**
+ * @param {number} width
+ * @param {number} height
+ * @param {number[][]} walls
+ * @param {number} num_apples
+ * @returns {number[]}
+ */
+const init_apples = (width, height, walls, num_apples) => {
+    /** @type {number[]} */
+    let apples = [];
+    for (let attempt = 0; attempt < 100; ++attempt) {
+        let x = Math.floor(Math.random() * width);
+        let y = Math.floor(Math.random() * height);
+        if (collides_with_walls([x, y], walls)) {
+            continue;
+        }
+        // Array.indexOf can't check for sub-arrays, so encode the coord as an int
+        let coord = encode_coord(x, y);
+        if (apples.indexOf(coord) > -1) {
+            continue;
+        }
+        apples.push(coord)
+        if (apples.length >= num_apples) {
+            break;
+        }
+    }
+    return apples;
+}
 
 /**
  * Initializes a new game state
@@ -51,8 +72,10 @@ const LEVEL_ONE_WALL_COLOUR = [13/6, 9/16, 0.97];
 export const init_game_state = (game_state) => {
     game_state.width = 33;
     game_state.height = 33;
-    game_state.walls = LEVEL_ONE_WALLS;
-    game_state.wall_colour = LEVEL_ONE_WALL_COLOUR;
+    game_state.walls = LEVELS[0].walls;
+    game_state.wall_colour = LEVELS[0].colour;
+    game_state.apples = init_apples(game_state.width, game_state.height, game_state.walls, LEVELS[0].num_apples);
+    game_state.length_per_apple = 4;
 
     game_state.player_pos = [[16, 0, 0], [16, 0, 0], [16, 0, 0]];
     game_state.player_colour = [1, 0.5, 0.1];
@@ -136,16 +159,34 @@ const update_position = (game_state) => {
     }
 
     // collision with wall
-    for (let i = 0; i < game_state.walls.length; ++i) {
-        let wall = game_state.walls[i];
-        if (new_pos[0] < wall[0] + wall[2]/2
-            && new_pos[0] > wall[0] - wall[2]/2
-            && new_pos[1] < wall[1] + wall[3]/2
-            && new_pos[1] > wall[1] - wall[3]/2
+    if (collides_with_walls(new_pos, game_state.walls)) {
+        return true;
+    }
+
+    // catches apple
+    let new_coord = encode_coord(new_pos[0], new_pos[1]);
+    let apple_index = game_state.apples.indexOf(new_coord);
+    if (apple_index >= 0) {
+        game_state.apples.splice(apple_index, 1);
+        for (let i = 0; i < game_state.length_per_apple; ++i) {
+            game_state.player_pos.push(game_state.player_pos[game_state.player_pos.length - 1]);
+        }
+    }
+
+    game_state.player_pos.unshift(new_pos);
+    game_state.player_pos.pop()
+}
+
+const collides_with_walls = (position, walls) => {
+    for (let i = 0; i < walls.length; ++i) {
+        let wall = walls[i];
+        if (position[0] < wall[0] + wall[2]/2
+            && position[0] > wall[0] - wall[2]/2
+            && position[1] < wall[1] + wall[3]/2
+            && position[1] > wall[1] - wall[3]/2
         ) {
             return true;
         }
     }
-
-    game_state.player_pos = [new_pos].concat(player_pos.slice(0, -1));
+    return false;
 }
