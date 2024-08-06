@@ -226,30 +226,10 @@ export const gl_draw = (app_state) => {
     gl.useProgram(renderinfo.program);
     // gl.uniformMatrix4fv(renderinfo.locations.u_view_matrix, true, identity4x4, 0, 0);
 
-    const positions = new Float32Array([
-        0, 0, 0,
-        0.5, 0.5, 0,
-        1, 1, 0,
-    ])
-    const colours = new Float32Array([
-        1, 0.5, 0.1,
-        13/16, 9/16, 0.97,
-        1, 0, 1,
-    ])
-    const scales = new Float32Array([
-        1, 1, 1,
-        0.75, 0.75, 0.75,
-        0.5, 0.5, 0.5,
-    ])
-    if (positions.length != colours.length) {
-        report_error("colour and position buffers must be the same size!");
-        return;
-    }
-    if (positions.length != scales.length) {
-        report_error("scale and position buffers must be the same size!");
-        return;
-    }
-    const num_instances = positions.length / 3;
+    let positions;
+    let colours;
+    let scales;
+    let num_instances;
 
     if (app_state.state == "menu") {
         const transform = new Float32Array([
@@ -259,15 +239,45 @@ export const gl_draw = (app_state) => {
             0, 0, 0, 1,
         ]);
         gl.uniformMatrix4fv(renderinfo.locations.u_view_matrix, true, transform, 0, 0);
+
+        positions = new Float32Array([
+            0, 0, 0,
+            0.5, 0.5, 0,
+            1, 1, 0,
+        ]);
+        colours = new Float32Array([
+            1, 0.5, 0.1,
+            13/16, 9/16, 0.97,
+            1, 0, 1,
+        ]);
+        scales = new Float32Array([
+            1, 1, 1,
+            0.75, 0.75, 0.75,
+            0.5, 0.5, 0.5,
+        ]);
+        if (positions.length != colours.length) {
+            report_error("colour and position buffers must be the same size!");
+            return;
+        }
+        if (positions.length != scales.length) {
+            report_error("scale and position buffers must be the same size!");
+            return;
+        }
+        num_instances = positions.length / 3;
     } else {
         // game
-        const transform = new Float32Array([
-            ASPECT, 0, 0, app_state.game_state.player_pos[0] / 30 * ASPECT,
-            0, 1, 0, app_state.game_state.player_pos[1] / 30,
-            0, 0, 1, 0,
-            0, 0, 0, 1,
-        ]);
+        const game_state = app_state.game_state;
+        const transform = new Float32Array(game_state.camera);
+        transform[0] *= ASPECT;
+        transform[1] *= ASPECT;
+        transform[2] *= ASPECT;
+        transform[3] *= ASPECT;
         gl.uniformMatrix4fv(renderinfo.locations.u_view_matrix, true, transform, 0, 0);
+
+        positions = new Float32Array(game_state.walls.map((x) => [x[0], x[1], 0]).flat(1).concat(game_state.player_pos.flat(1)));
+        scales = new Float32Array(game_state.walls.map((x) => [x[2], x[3], 1]).flat(1).concat(game_state.player_pos.map((x) => [1,1,1]).flat(1)));
+        colours = new Float32Array(game_state.walls.map((x) => game_state.wall_colour).flat(1).concat(game_state.player_pos.map((x) => game_state.player_colour).flat(1)));
+        num_instances = positions.length / 3;
     }
 
     // buffer the colour / cube position data
