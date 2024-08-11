@@ -76,7 +76,7 @@ const init_apples = (width, height, walls, snake, num_apples) => {
  */
 export const init_game_state = (game_state, level) => {
     if (level == null) {
-        level = 2;
+        level = 0;
     }
     if (level >= LEVELS.length) {
         level = LEVELS.length - 1;
