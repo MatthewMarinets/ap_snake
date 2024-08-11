@@ -130,7 +130,9 @@ export const iterate_game_state = (app_state, dt, inputs) => {
         if (inputs[key] && !game_state.last_update_inputs[key]
             || inputs[alt_key] && !game_state.last_update_inputs[alt_key]
         ) {
-            if (game_state.player_last_direction === opposite(direction)) {
+            if (game_state.player_last_direction === direction
+                || game_state.player_last_direction === opposite(direction)
+            ) {
                 game_state.player_buffered_direction = direction;
             } else {
                 game_state.player_direction = direction;
@@ -149,7 +151,7 @@ export const iterate_game_state = (app_state, dt, inputs) => {
         } else {
             game_state.player_last_direction = game_state.player_direction;
     
-            // apply coyote-time inputs for U-turns
+            // apply coyote-time inputs for U-turns and S-turns
             if (game_state.player_buffered_direction >= 0
                 && game_state.player_buffered_direction !== opposite(game_state.player_direction)
             ) {
