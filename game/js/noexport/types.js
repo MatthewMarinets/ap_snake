@@ -25,6 +25,7 @@
  * @property {number[]} wall_colour
  * @property {number[]} apples
  * @property {number[][]} player_pos
+ * @property {boolean} exit_open
  * @property {Camera} camera
  * @property {0|1|2|3} player_direction
  * @property {0|1|2|3} player_last_direction
