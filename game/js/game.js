@@ -95,6 +95,7 @@ export const init_game_state = (game_state, level) => {
     const start_coord = encode_coord(16, 0);
     game_state.player_pos = [start_coord, start_coord, start_coord];
     game_state.player_colour = [1, 0.5, 0.1];
+    game_state.tail_colour = [0.5, 0.8, 0.2];
     game_state.player_direction = UP;
     game_state.player_last_direction = UP;
     game_state.player_buffered_direction = -1;

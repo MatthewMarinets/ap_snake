@@ -217,6 +217,11 @@ const identity4x4 = new Float32Array([
     0, 0, 0, 1,
 ]);
 
+const exp_interp = (i, t, a, b) => {
+    let difference = a - b;
+    return b + difference * Math.exp(-i * t);
+}
+
 /**
  * Draws the current state. Assumes renderinfo has been initialized.
  * @param {AppState} app_state 
@@ -289,7 +294,11 @@ export const gl_draw = (app_state) => {
         );
         colours = new Float32Array(
             game_state.walls.map((x) => game_state.wall_colour).flat(1)
-            .concat(game_state.player_pos.map((x) => game_state.player_colour).flat(1))
+            .concat(game_state.player_pos.map((x, i) => [
+                exp_interp(i, 0.04, game_state.player_colour[0], game_state.tail_colour[0]),
+                exp_interp(i, 0.04, game_state.player_colour[1], game_state.tail_colour[1]),
+                exp_interp(i, 0.04, game_state.player_colour[2], game_state.tail_colour[2]),
+            ]).flat(1))
             .concat(game_state.apples.map((x) => [1, 0, 0]).flat(1))
             .concat(0, 0, 0)
         );
