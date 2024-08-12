@@ -59,50 +59,37 @@ const shaders_initialized = Promise.all(resources.load_all_text.concat(gl_initia
 });
 
 const cube_vertices = new Float32Array([
+    -0.5, -0.5, -0.5, // 0
+    +0.5, -0.5, -0.5, // 1
+    -0.5, +0.5, -0.5, // 2
+    +0.5, +0.5, -0.5, // 3
+    -0.5, -0.5, +0.5, // 4
+    +0.5, -0.5, +0.5, // 5
+    -0.5, +0.5, +0.5, // 6
+    +0.5, +0.5, +0.5, // 7
+]);
+const cube_indices = new Int16Array([
     // front
-    -0.5, -0.5, -0.5,
-    +0.5, -0.5, -0.5,
-    -0.5, +0.5, -0.5,
-    +0.5, -0.5, -0.5,
-    +0.5, +0.5, -0.5,
-    -0.5, +0.5, -0.5,
+    0, 1, 2,
+    1, 3, 2,
     // back
-    -0.5, -0.5, +0.5,
-    -0.5, +0.5, +0.5,
-    +0.5, -0.5, +0.5,
-    +0.5, -0.5, +0.5,
-    -0.5, +0.5, +0.5,
-    +0.5, +0.5, +0.5,
+    4, 6, 5,
+    5, 6, 7,
     // left
-    -0.5, -0.5, -0.5,
-    -0.5, +0.5, -0.5,
-    -0.5, -0.5, +0.5,
-    -0.5, -0.5, +0.5,
-    -0.5, +0.5, -0.5,
-    -0.5, +0.5, +0.5,
+    0, 2, 4,
+    4, 2, 6,
     // right
-    +0.5, -0.5, -0.5,
-    +0.5, -0.5, +0.5,
-    +0.5, +0.5, -0.5,
-    +0.5, -0.5, +0.5,
-    +0.5, +0.5, +0.5,
-    +0.5, +0.5, -0.5,
+    1, 5, 3,
+    5, 7, 3,
     // top
-    -0.5, +0.5, -0.5,
-    +0.5, +0.5, -0.5,
-    -0.5, +0.5, +0.5,
-    -0.5, +0.5, +0.5,
-    +0.5, +0.5, -0.5,
-    +0.5, +0.5, +0.5,
+    2, 3, 6,
+    6, 3, 7,
     // bottom
-    -0.5, -0.5, -0.5,
-    -0.5, -0.5, +0.5,
-    +0.5, -0.5, -0.5,
-    -0.5, -0.5, +0.5,
-    +0.5, -0.5, +0.5,
-    +0.5, -0.5, -0.5,
+    0, 4, 1,
+    4, 5, 1,
 ]);
 const NUM_VERTICES = cube_vertices.length / 3;
+const NUM_INDICES = cube_indices.length / 3;
 
 const MAX_POSITION_BUFFER_SIZE_BYTES = 1536;
 
@@ -118,6 +105,7 @@ const MAX_POSITION_BUFFER_SIZE_BYTES = 1536;
  * @property {Locations} locations
  * @property {WebGLVertexArrayObject} vao
  * @property {WebGLProgram} program
+ * @property {WebGLBuffer} index_buffer
  * @property {WebGLBuffer} position_buffer
  * @property {WebGLBuffer} scale_buffer
  * @property {WebGLBuffer} colour_buffer
@@ -133,7 +121,7 @@ const renderinfo_initialized = shaders_initialized.then((program) => {
     renderinfo.locations.u_view_matrix = gl.getUniformLocation(program, "view_matrix");
     renderinfo.program = program;
 
-    // buffer
+    // vertex buffer
     const vertex_position_buffer = gl.createBuffer();
     if (vertex_position_buffer == null) {
         report_error("");
@@ -154,6 +142,11 @@ const renderinfo_initialized = shaders_initialized.then((program) => {
     const offset = 0;
     // Note: This also binds the current ARRAY_BUFFER (ie `positions`) to the `a_position` location
     gl.vertexAttribPointer(renderinfo.locations.a_position, size, type, normalize, stride, offset);
+
+    // index buffer
+    renderinfo.index_buffer = gl.createBuffer();
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, renderinfo.index_buffer);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, cube_indices, gl.STATIC_DRAW);
 
     // position buffer
     renderinfo.position_buffer = gl.createBuffer();
@@ -316,6 +309,5 @@ export const gl_draw = (app_state) => {
     gl.clearColor(0, 0, 0, 0);
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.bindVertexArray(renderinfo.vao);
-    // gl.drawArrays(gl.TRIANGLES, 0, NUM_VERTICES);
-    gl.drawArraysInstanced(gl.TRIANGLES, 0, NUM_VERTICES, num_instances);
+    gl.drawElementsInstanced(gl.TRIANGLES, NUM_INDICES, gl.UNSIGNED_SHORT, 0, num_instances);
 };
