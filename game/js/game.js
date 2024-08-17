@@ -89,8 +89,9 @@ export const init_game_state = (game_state, level) => {
     game_state.wall_colour = LEVELS[level].colour;
     game_state.round = 1;
     game_state.apples = init_apples(game_state.width, game_state.height, game_state.walls, [], LEVELS[level].num_apples);
-    game_state.length_per_apple = 4;
+    game_state.length_per_apple = 5;
     game_state.exit_open = false;
+    game_state.paused = false;
 
     const start_coord = encode_coord(16, 0);
     game_state.player_pos = [start_coord, start_coord, start_coord];
@@ -116,6 +117,15 @@ export const init_game_state = (game_state, level) => {
  */
 export const iterate_game_state = (app_state, dt, inputs) => {
     let game_state = app_state.game_state;
+    
+    if (inputs[" "] && !game_state.last_update_inputs[" "]) {
+        game_state.paused = !game_state.paused;
+    }
+    game_state.last_update_inputs[" "] = inputs[" "];
+    if (game_state.paused) {
+        return;
+    }
+    
     game_state.level_time_ms += dt;
 
     // apply inputs
@@ -144,8 +154,9 @@ export const iterate_game_state = (app_state, dt, inputs) => {
     if (game_state.level_time_ms > game_state.player_last_moved + game_state.player_move_period_ms) {
         const move_result = update_position(game_state);
         if (move_result === MOVE_RESULT_COLLISION) {
-            app_state.state = "menu";
-            init_menu_state(app_state.menu_state);
+            // app_state.state = "menu";
+            // init_menu_state(app_state.menu_state);
+            init_game_state(game_state, game_state.level);
         } else if (move_result === MOVE_RESULT_EXIT) {
             init_game_state(game_state, game_state.level+1);
         } else {

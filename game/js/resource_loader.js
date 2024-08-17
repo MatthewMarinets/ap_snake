@@ -20,27 +20,37 @@ const load_text_file = (filename, callback) => {
     return contents;
 }
 
+const load_image_file = (filename, callback) => {
+    var image = new Image();
+    image.src = filename;
+    image.addEventListener('load', callback);
+}
+
 const init_resources = () => {
     const vert_shader_path = "shaders/snake.vert";
     const frag_shader_path = "shaders/snake.frag";
+    const tiles_image_path = "resources/tiles.png";
 
     const text_resources = [
-        ["vertex_shader", vert_shader_path],
-        ["fragment_shader", frag_shader_path],
+        {"name": "vertex_shader", "path": vert_shader_path, "loader": load_text_file},
+        {"name": "fragment_shader", "path": frag_shader_path, "loader": load_text_file},
     ];
-    const all_resources = text_resources;
+    const image_resources = [
+        {"name": "tiles_image", "path": tiles_image_path, "loader": load_image_file},
+    ];
+    const resource_config = text_resources.concat(image_resources)
 
-    for (let resource_index = 0; resource_index < text_resources.length; ++resource_index) {
-        resources["load_" + text_resources[resource_index][0]] = new Promise((resolve) => {
-            load_text_file(text_resources[resource_index][1], (contents) => {
-                resources[text_resources[resource_index][0]] = contents;
+    for (let resource_index = 0; resource_index < resource_config.length; ++resource_index) {
+        resources["load_" + resource_config[resource_index].name] = new Promise((resolve) => {
+            resource_config[resource_index].loader(resource_config[resource_index].path, (contents) => {
+                resources[resource_config[resource_index].name] = contents;
                 resolve(contents);
             });
         }).catch((error) => console.error(error));
     }
 
-    resources.load_all_text = text_resources.map((resource_info) => resources["load_" + resource_info[0]]);
-    resources.load_all = all_resources.map((resource_info) => resources["load_" + resource_info[0]]);
+    resources.load_all_text = text_resources.map((resource_info) => resources["load_" + resource_info.name]);
+    resources.load_all = resource_config.map((resource_info) => resources["load_" + resource_info.name]);
 
     Promise.all(
         resources.load_all

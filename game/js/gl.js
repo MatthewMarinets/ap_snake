@@ -43,7 +43,7 @@ const shaders_initialized = Promise.all(resources.load_all_text.concat(gl_initia
     let vertex_shader = create_shader(gl, gl.VERTEX_SHADER, resources.vertex_shader);
     let fragment_shader = create_shader(gl, gl.FRAGMENT_SHADER, resources.fragment_shader);
     if (program == null || vertex_shader == null || fragment_shader == null) {
-        return new Promise.reject("Shader program initialization failed");
+        return Promise.reject("Shader program initialization failed");
     }
     gl.attachShader(program, vertex_shader);
     gl.attachShader(program, fragment_shader);
@@ -55,7 +55,7 @@ const shaders_initialized = Promise.all(resources.load_all_text.concat(gl_initia
     report_error("Unable to link shader program");
     console.log(gl.getProgramInfoLog(program));
     gl.deleteProgram(program);
-    return new Promise.reject("Shader program initialization failed");
+    return Promise.reject("Shader program initialization failed");
 });
 
 const cube_vertices = new Float32Array([
