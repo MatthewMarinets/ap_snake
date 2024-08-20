@@ -8,11 +8,13 @@ const UP = 0;
 const DOWN = 1;
 const RIGHT = 2;
 const LEFT = 3;
+const STILL = 4
 const directions = [
     new Float32Array([0, 1]),  // UP
     new Float32Array([0, -1]),  // DOWN
     new Float32Array([1, 0]),  // RIGHT
     new Float32Array([-1, 0]),  // LEFT
+    new Float32Array([0, 0]),  // STILL
 ];
 const opposite = (direction) => {
     return direction ^ 1;
@@ -93,12 +95,12 @@ export const init_game_state = (game_state, level) => {
     game_state.exit_open = false;
     game_state.paused = false;
 
-    const start_coord = encode_coord(16, 0);
+    const start_coord = encode_coord(16, 1);
     game_state.player_pos = [start_coord, start_coord, start_coord];
     game_state.player_colour = [1, 0.5, 0.1];
     game_state.tail_colour = [0.5, 0.8, 0.2];
-    game_state.player_direction = UP;
-    game_state.player_last_direction = UP;
+    game_state.player_direction = STILL;
+    game_state.player_last_direction = STILL;
     game_state.player_buffered_direction = -1;
     game_state.player_move_period_ms = 100;
     game_state.player_last_moved = 0;
@@ -192,11 +194,16 @@ const MOVE_RESULT_EXIT = 2;
  * @returns {MOVE_RESULT_COLLISION|MOVE_RESULT_EXIT|MOVE_RESULT_OKAY}
  */
 const update_position = (game_state) => {
+    game_state.player_last_moved += game_state.player_move_period_ms;
+    if (game_state.player_direction === STILL) {
+        return MOVE_RESULT_OKAY;
+    }
+
     const player_velocity = directions[game_state.player_direction]
     let new_pos = decode_coord(game_state.player_pos[0]);
     new_pos[0] += player_velocity[0];
     new_pos[1] += player_velocity[1];
-    game_state.player_last_moved += game_state.player_move_period_ms;
+
 
     // out of bounds
     if (new_pos[0] < 0 || new_pos[0] >= game_state.width || new_pos[1] < 0 || new_pos[1] >= game_state.height) {
