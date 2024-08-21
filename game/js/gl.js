@@ -91,7 +91,7 @@ const cube_indices = new Int16Array([
 const NUM_VERTICES = cube_vertices.length / 3;
 const NUM_INDICES = cube_indices.length / 3;
 
-const MAX_POSITION_BUFFER_SIZE_BYTES = 1536;
+const MAX_POSITION_BUFFER_SIZE_BYTES = 3072;
 
 /**
  * @typedef {Object} Locations
@@ -273,6 +273,9 @@ export const gl_draw = (app_state) => {
         gl.uniformMatrix4fv(renderinfo.locations.u_view_matrix, true, transform, 0, 0);
         
         num_instances = game_state.walls.length + game_state.player_pos.length + game_state.apples.length + game_state.exit_open;
+        if (num_instances * 12 > MAX_POSITION_BUFFER_SIZE_BYTES) {
+            report_error("Too many cubes being drawn");
+        }
         positions = new Float32Array(
             game_state.walls.map((x) => [x[0], x[1], 0]).flat(1)
             .concat(game_state.player_pos.map((x) => [decode_coord_x(x), decode_coord_y(x), 0]).flat(1))
