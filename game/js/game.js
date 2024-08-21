@@ -90,12 +90,12 @@ export const init_game_state = (game_state, level) => {
     game_state.walls = LEVELS[level].walls;
     game_state.wall_colour = LEVELS[level].colour;
     game_state.round = 1;
-    game_state.apples = init_apples(game_state.width, game_state.height, game_state.walls, [], LEVELS[level].num_apples);
     game_state.length_per_apple = 5;
     game_state.exit_open = false;
     game_state.paused = false;
-
+    
     const start_coord = encode_coord(16, 1);
+    game_state.apples = init_apples(game_state.width, game_state.height, game_state.walls, [start_coord], LEVELS[level].num_apples);
     game_state.player_pos = [start_coord, start_coord, start_coord];
     game_state.player_colour = [1, 0.5, 0.1];
     game_state.tail_colour = [0.5, 0.8, 0.2];
