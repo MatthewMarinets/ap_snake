@@ -376,6 +376,36 @@ const LEVEL_NINETEEN_WALLS = [
 ];
 const LEVEL_NINETEEN_WALL_COLOUR = [13/6, 9/16, 0.97];
 
+const LEVEL_TWENTY_WALLS = [
+    // bounds
+    [16, 0, 33, 1],
+    [0, 16, 1, 33],
+    [16, 32, 33, 1],
+    [32, 16, 1, 33],
+    // LL`|`|
+    [4, 16, 1, 25],
+    [8, 19, 1, 23],
+    [12, 4, 17, 1],
+    [14, 8, 13, 1],
+
+    [28, 16, 1, 25],
+    [24, 13, 1, 23],
+    [20, 28, 17, 1],
+    [18, 24, 13, 1],
+    // windmill
+    [13.5, 17, 2, 1],
+    [14, 19, 3, 1],
+    [17, 18.5, 1, 2],
+    [19, 18, 1, 3],
+    [18.5, 15, 2, 1],
+    [18, 13, 3, 1],
+    [15, 13.5, 1, 2],
+    [13, 14, 1, 3],
+
+    [16, 16, 1, 1],  // item;
+];
+const LEVEL_TWENTY_WALL_COLOUR = [13/6, 9/16, 0.97];
+
 export const LEVELS = [
     {walls: LEVEL_ONE_WALLS, colour: LEVEL_ONE_WALL_COLOUR, num_apples: 10, num_rounds: 2, exit: GENERAL_EXIT},
     {walls: LEVEL_TWO_WALLS, colour: LEVEL_TWO_WALL_COLOUR, num_apples: 10, num_rounds: 2, exit: GENERAL_EXIT},
@@ -396,4 +426,5 @@ export const LEVELS = [
     {walls: LEVEL_SEVENTEEN_WALLS, colour: LEVEL_SEVENTEEN_WALL_COLOUR, num_apples: 10, num_rounds: 2, exit: GENERAL_EXIT},
     {walls: LEVEL_EIGHTEEN_WALLS, colour: LEVEL_EIGHTEEN_WALL_COLOUR, num_apples: 10, num_rounds: 2, exit: GENERAL_EXIT},
     {walls: LEVEL_NINETEEN_WALLS, colour: LEVEL_NINETEEN_WALL_COLOUR, num_apples: 10, num_rounds: 2, exit: GENERAL_EXIT},
+    {walls: LEVEL_TWENTY_WALLS, colour: LEVEL_TWENTY_WALL_COLOUR, num_apples: 10, num_rounds: 2, exit: GENERAL_EXIT},
 ];
