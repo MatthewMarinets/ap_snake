@@ -561,6 +561,31 @@ const LEVEL_TWENTY_FIVE_WALLS = [
 ];
 const LEVEL_TWENTY_FIVE_WALL_COLOUR = [13/6, 9/16, 0.97];
 
+const LEVEL_TWENTY_SIX_WALLS = [
+    // bounds
+    [16, 0, 33, 1],
+    [0, 16, 1, 33],
+    [16, 32, 33, 1],
+    [32, 16, 1, 33],
+    // two coiled snakes
+    [16, 16, 1, 11],
+
+    [18, 14, 1, 1],  // item
+    [20, 14, 1, 1],  // item
+    [19, 11, 7, 1],
+    [22, 17.5, 1, 14],
+    [14.5, 24, 16, 1],
+    [7, 16, 1, 17],
+
+    [14, 18, 1, 1],  // item
+    [12, 18, 1, 1],  // item
+    [13, 21, 7, 1],
+    [10, 14.5, 1, 14],
+    [17.5, 8, 16, 1],
+    [25, 16, 1, 17],
+];
+const LEVEL_TWENTY_SIX_WALL_COLOUR = [13/6, 9/16, 0.97];
+
 export const LEVELS = [
     {walls: LEVEL_ONE_WALLS, colour: LEVEL_ONE_WALL_COLOUR, num_apples: 10, num_rounds: 2, exit: GENERAL_EXIT},
     {walls: LEVEL_TWO_WALLS, colour: LEVEL_TWO_WALL_COLOUR, num_apples: 10, num_rounds: 2, exit: GENERAL_EXIT},
@@ -587,4 +612,5 @@ export const LEVELS = [
     {walls: LEVEL_TWENTY_THREE_WALLS, colour: LEVEL_TWENTY_THREE_WALL_COLOUR, num_apples: 10, num_rounds: 2, exit: GENERAL_EXIT},
     {walls: LEVEL_TWENTY_FOUR_WALLS, colour: LEVEL_TWENTY_FOUR_WALL_COLOUR, num_apples: 10, num_rounds: 2, exit: GENERAL_EXIT},
     {walls: LEVEL_TWENTY_FIVE_WALLS, colour: LEVEL_TWENTY_FIVE_WALL_COLOUR, num_apples: 10, num_rounds: 2, exit: GENERAL_EXIT},
+    {walls: LEVEL_TWENTY_SIX_WALLS, colour: LEVEL_TWENTY_SIX_WALL_COLOUR, num_apples: 10, num_rounds: 2, exit: GENERAL_EXIT},
 ];
