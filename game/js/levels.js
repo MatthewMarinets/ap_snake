@@ -671,6 +671,87 @@ const LEVEL_TWENTY_SEVEN_WALLS = [
 ];
 const LEVEL_TWENTY_SEVEN_WALL_COLOUR = [13/6, 9/16, 0.97];
 
+const LEVEL_TWENTY_EIGHT_WALLS = [
+    // bounds
+    [16, 0, 33, 1],
+    [0, 16, 1, 33],
+    [16, 32, 33, 1],
+    [32, 16, 1, 33],
+
+    // crossroads
+    [30, 2, 1, 1],  // item
+    [2, 30, 1, 1],  // item
+
+    [2, 2, 1, 1],  // item
+    [4, 4, 1, 1],  // item
+    [6, 6, 1, 1],  // item
+    [8, 7, 1, 1],  // item
+    [10, 9, 1, 1],  // item
+    [12, 11, 1, 1],  // item
+    [30, 30, 1, 1],  // item
+    [28, 28, 1, 1],  // item
+    [26, 26, 1, 1],  // item
+    [24, 25, 1, 1],  // item
+    [22, 23, 1, 1],  // item
+    [20, 21, 1, 1],  // item
+    
+    // center
+    [16, 16, 7, 1],
+    [15, 16.5, 3, 2],
+    [17, 15.5, 3, 2],
+
+    // left
+    [1, 13, 3, 1],
+    [9, 13, 11, 1],
+    [1, 16, 3, 1],
+    [6.5, 16, 6, 1],
+
+    // right
+    [31, 19, 3, 1],
+    [23, 19, 11, 1],
+    [31, 16, 3, 1],
+    [25.5, 16, 6, 1],
+    
+    // top
+    [14, 30, 1, 3],
+    [14, 24, 1, 7],
+    [18, 30, 1, 3],
+    [18, 23, 1, 9],
+
+    // bottom
+    [18, 2, 1, 3],
+    [18, 8, 1, 7],
+    [14, 2, 1, 3],
+    [14, 9, 1, 9],
+
+    // top-left diagonals
+    [9.5, 17, 2, 1],
+    [10.5, 18, 2, 1],
+    [11.5, 19, 2, 1],
+    [12.5, 20, 2, 1],
+    [13.5, 21, 2, 1],
+
+    [7.5, 19, 2, 1],
+    [8.5, 20, 2, 1],
+    [9.5, 21, 2, 1],
+    [10.5, 22, 2, 1],
+    [11, 23, 1, 1],
+
+    // bottom-right diagonals
+    [22.5, 15, 2, 1],
+    [21.5, 14, 2, 1],
+    [20.5, 13, 2, 1],
+    [19.5, 12, 2, 1],
+    [18.5, 11, 2, 1],
+
+    [24.5, 13, 2, 1],
+    [23.5, 12, 2, 1],
+    [22.5, 11, 2, 1],
+    [21.5, 10, 2, 1],
+    [21, 9, 1, 1],
+];
+const LEVEL_TWENTY_EIGHT_WALL_COLOUR = [13/6, 9/16, 0.97];
+
 export const LEVELS = [
     {walls: LEVEL_ONE_WALLS, colour: LEVEL_ONE_WALL_COLOUR, num_apples: 10, num_rounds: 2, exit: GENERAL_EXIT},
     {walls: LEVEL_TWO_WALLS, colour: LEVEL_TWO_WALL_COLOUR, num_apples: 10, num_rounds: 2, exit: GENERAL_EXIT},
@@ -699,4 +780,5 @@ export const LEVELS = [
     {walls: LEVEL_TWENTY_FIVE_WALLS, colour: LEVEL_TWENTY_FIVE_WALL_COLOUR, num_apples: 10, num_rounds: 2, exit: GENERAL_EXIT},
     {walls: LEVEL_TWENTY_SIX_WALLS, colour: LEVEL_TWENTY_SIX_WALL_COLOUR, num_apples: 10, num_rounds: 2, exit: GENERAL_EXIT},
     {walls: LEVEL_TWENTY_SEVEN_WALLS, colour: LEVEL_TWENTY_SEVEN_WALL_COLOUR, num_apples: 10, num_rounds: 2, exit: GENERAL_EXIT},
+    {walls: LEVEL_TWENTY_EIGHT_WALLS, colour: LEVEL_TWENTY_EIGHT_WALL_COLOUR, num_apples: 10, num_rounds: 2, exit: GENERAL_EXIT},
 ];
