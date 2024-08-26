@@ -106,7 +106,9 @@ export const init_game_state = (game_state, level) => {
     game_state.player_last_moved = 0;
     game_state.level_time_ms = 0;
 
-    game_state.last_update_inputs = {};
+    if (game_state.last_update_inputs == null) {
+        game_state.last_update_inputs = {};
+    }
     game_state.camera = init_camera();
     return game_state;
 };
